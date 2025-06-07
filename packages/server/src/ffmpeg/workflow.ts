@@ -18,7 +18,7 @@ export function toCommandArguments(actions: WorkflowAction[]): string[] {
     for (const action of actions) {
         if ((methods as string[]).includes(action.name)) {
             try {
-                // @ts-expect-error
+                // @ts-ignore
                 ffmpegInstance[action.name](...action.value);
             } catch (err) {
                 throw new Error(`Failed to apply FFmpeg method '${action.name}': ${(err as Error).message}`);

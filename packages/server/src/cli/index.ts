@@ -10,7 +10,17 @@ export default new Command()
     .option("-e, --env <env>", "Environment file", ".env")
     .hook('preAction', (thisCommand) => {
         config({ path: thisCommand.opts().env });
-        ensureEnvVariablesExist(['DATABASE_URL', 'S3_ACCESS_KEY', 'S3_SECRET_KEY', 'S3_ENDPOINT', 'S3_PUBLIC_DOMAIN', 'S3_BUCKET_NAME', 'S3_REGION']);
+
+        const requiredVars = ['DATABASE_URL'];
+        const storageDriver = process.env.STORAGE_DRIVER ?? 's3';
+
+        if (storageDriver === 's3') {
+            requiredVars.push('S3_ACCESS_KEY', 'S3_SECRET_KEY', 'S3_ENDPOINT', 'S3_PUBLIC_DOMAIN', 'S3_BUCKET_NAME', 'S3_REGION');
+        } else if (storageDriver === 'local') {
+            // no specific vars required for local, defaults are provided in storage.ts
+        }
+
+        ensureEnvVariablesExist(requiredVars);
     })
     .addCommand(createServeCommand())
     .addCommand(createMigrateDownCommand())

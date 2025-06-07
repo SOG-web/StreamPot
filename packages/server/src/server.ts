@@ -22,10 +22,17 @@ import { addJob, getAllJobs, getJobWithAssets } from './db'
 import { validateBearerToken } from './auth'
 import { shouldUseAPIKey } from './config'
 import { deleteFilesByJobId } from './storage'
+import path from 'node:path'
+import staticPlugin from '@fastify/static'
 
 const app = Fastify({
     logger: true
 }).withTypeProvider<TypeBoxTypeProvider>()
+
+app.register(staticPlugin, {
+    root: path.join(process.cwd(), 'public'),
+    prefix: '/',
+})
 
 app.register(sensible)
 

@@ -48,6 +48,32 @@ setTimeout(async () => {
 },10000) // wait 10 seconds
 ```
 
+## How does it work?
+
+StreamPot is a server that runs ffmpeg jobs. It's built on top of [bullmq](https://github.com/taskforcesh/bullmq) and [fluent-ffmpeg](https://github.com/fluent-ffmpeg/fluent-ffmpeg).
+
+The server is built with [Fastify](https://www.fastify.io/) and [TypeScript](https://www.typescriptlang.org/).
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant Queue
+    participant Worker
+    participant FFmpeg
+    participant Storage
+
+    Client->>Server: 1. POST / with workflow
+    Server->>Queue: 2. Add job to queue
+    Server->>Client: 3. Return job ID
+    Queue->>Worker: 4. Worker picks up job
+    Worker->>FFmpeg: 5. Execute workflow
+    FFmpeg->>Storage: 6. Save output file
+    Worker->>Queue: 7. Mark job complete
+```
+
+
+
 ## Acknowledgements
 
 This project is heavily reliant on the amazing work of the ffmpeg and fluent-ffmpeg teams 
