@@ -10,6 +10,10 @@ export function getStorageDriver() {
     return process.env.STORAGE_DRIVER ?? 's3';
 }
 
+export function getDbClient() {
+    return process.env.DB_CLIENT ?? 'pg';
+}
+
 export function shouldUseAPIKey() {
     return process.env.API_KEY !== undefined && process.env.API_KEY !== ""
 }

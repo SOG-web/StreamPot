@@ -1,3 +1,4 @@
 dist/
 streampot_test_files/
 public/outputs/
+/src/generated/prisma

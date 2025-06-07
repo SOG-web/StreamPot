@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Job {
+  id           Int        @id @default(autoincrement())
+  type         String
+  user_id      String
+  status       String
+  payload      Json
+  created_at   DateTime   @default(now())
+  completed_at DateTime?
+  logs         String?
+  assets       Asset[]
+  metadata     Metadata[]
+}
+
+model Asset {
+  id          Int        @id @default(autoincrement())
+  job_id      Int
+  name        String
+  stored_path String
+  url         String
+  created_at  DateTime   @default(now())
+  type        String?
+  deleted_at  DateTime?
+  job         Job        @relation(fields: [job_id], references: [id], onDelete: Cascade)
+  metadata    Metadata[]
+}
+
+model Metadata {
+  id              Int      @id @default(autoincrement())
+  asset_id        Int?
+  job_id          Int?
+  duration        Float?
+  width           Int?
+  height          Int?
+  bit_rate        Int?
+  size            Int?
+  frame_rate      Float?
+  created_at      DateTime @default(now())
+  asset           Asset?   @relation(fields: [asset_id], references: [id])
+  job             Job?     @relation(fields: [job_id], references: [id])
+}

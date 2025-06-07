@@ -16,15 +16,15 @@ export type Asset = InputAsset | OutputAsset
 export interface SavedInputAsset extends InputAsset {
     id: number
     job_id: number
-    deleted_at: string | null
-    created_at: string
+    deleted_at: Date | null
+    created_at: Date
 }
 
 export interface SavedOutputAsset extends OutputAsset {
     id: number
     job_id: number
-    deleted_at: string | null
-    created_at: string
+    deleted_at: Date | null
+    created_at: Date
 }
 
 export type SavedAsset = SavedInputAsset | SavedOutputAsset

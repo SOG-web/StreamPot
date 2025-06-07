@@ -18,7 +18,9 @@
         "dev": "cross-env NODE_ENV=development tsup",
         "start": "cross-env NODE_ENV=production dist/bin/streampot.js serve",
         "test": "vitest",
-        "migrate": "node-pg-migrate"
+        "migrate": "node-pg-migrate",
+        "prisma:migrate": "prisma migrate dev",
+        "prisma:generate": "prisma generate"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.800.0",
@@ -27,6 +29,7 @@
         "@fastify/sensible": "^6.0.3",
         "@fastify/static": "^8.2.0",
         "@fastify/type-provider-typebox": "^5.1.0",
+        "@prisma/client": "^6.9.0",
         "@sinclair/typebox": "^0.34.33",
         "bullmq": "^5.52.1",
         "commander": "^13.1.0",
@@ -46,6 +49,7 @@
         "@types/uuid": "^10.0.0",
         "cross-env": "^7.0.3",
         "nodemon": "^3.1.10",
+        "prisma": "^6.9.0",
         "ts-node": "^10.9.2",
         "tsup": "^8.4.0",
         "vitest": "^3.1.2"

@@ -28,6 +28,8 @@ export type JobEntity = UnsavedJobEntity & {
     created_at: Date,
     completed_at?: Date
     outputs?: Record<string, string> // record of assets name (user provided) and url (generated)
+    assets?: any[] // Allow relation to be loaded
+    metadata?: any[] // Allow relation to be loaded
 }
 
 export type JobMetadata = {
