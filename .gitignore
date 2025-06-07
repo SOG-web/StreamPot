@@ -6,3 +6,4 @@ cache
 .env
 !*.env.example
 streampot_test_files/
+test-app/

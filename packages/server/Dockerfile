@@ -45,6 +45,10 @@ RUN pnpm build
 # Remove development dependencies.
 RUN pnpm prune --prod
 
+# Change ownership of the entire app directory to the 'node' user.
+# This fixes permission issues with mounted volumes.
+RUN chown -R node:node /usr/src/app
+
 # Run the application as a non-root user.
 USER node
 

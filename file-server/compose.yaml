@@ -1,0 +1,17 @@
+services:
+  fileserver:
+    image: nginx:latest
+    container_name: fileserver
+    ports:
+      - "8080:80"
+    volumes:
+      # Mounts your media folder into the container
+      - ./media:/usr/share/nginx/html/media
+      # Mounts your config file
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - streampot-network
+
+networks:
+  streampot-network:
+    driver: bridge
