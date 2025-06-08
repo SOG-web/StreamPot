@@ -3,6 +3,7 @@ config({ path: '.env' })
 import Fastify from 'fastify'
 import sensible from '@fastify/sensible'
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
+import cors from '@fastify/cors'
 import { videoQueue } from './queue'
 import {
     JobEntityId,
@@ -18,7 +19,7 @@ import {
     DeletionError,
     NoOutputsError
 } from './errors'
-import { addJob, getAllJobs, getJobWithAssets } from './db'
+import { addJob, getAllJobs, getJobWithAssets, getFullJobWithAssets } from './db'
 import { validateBearerToken } from './auth'
 import { shouldUseAPIKey } from './config'
 import { deleteFilesByJobId } from './storage'
@@ -28,6 +29,10 @@ import staticPlugin from '@fastify/static'
 const app = Fastify({
     logger: true
 }).withTypeProvider<TypeBoxTypeProvider>()
+
+app.register(cors, {
+    origin: '*'
+})
 
 app.register(staticPlugin, {
     root: path.join(process.cwd(), 'public'),
@@ -61,7 +66,21 @@ app.post<{ Body: FfmpegActionsRequestType }>('/', {
     }
 })
 
-app.get<{ Params: { id: JobEntityId } }>('/jobs/:id', async (request, reply) => {
+app.get<{
+    Params: { id: JobEntityId },
+    Querystring: { include?: string }
+}>('/jobs/:id', async (request, reply) => {
+    if (request.query.include === 'assets') {
+        const job = await getFullJobWithAssets(request.params.id)
+
+        if (!job) {
+            reply.code(404)
+            return { message: 'Job not found' }
+        }
+
+        return job
+    }
+
     const job = await getJobWithAssets(request.params.id)
 
     if (!job) {

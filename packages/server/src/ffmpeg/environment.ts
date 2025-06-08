@@ -18,18 +18,27 @@ export async function createEnvironment() {
     };
 }
 
-export async function uploadAssets({ directory }: Environment): Promise<OutputAsset[]> {
-    const files = await fs.readdir(directory);
+async function getFiles(dir: string): Promise<string[]> {
+    const dirents = await fs.readdir(dir, { withFileTypes: true });
+    const files = await Promise.all(dirents.map((dirent) => {
+        const res = join(dir, dirent.name);
+        return dirent.isDirectory() ? getFiles(res) : res;
+    }));
+    return Array.prototype.concat(...files);
+}
 
-    const uploadPromises = files.map(async (file) => {
-        const localFilePath = join(directory, file);
-        const remoteFileName = `${uuidv4()}-${file}`;
+export async function uploadAssets({ directory }: Environment): Promise<OutputAsset[]> {
+    const files = await getFiles(directory);
+
+    const uploadPromises = files.map(async (fullPath) => {
+        const localFilePath = fullPath;
+        const remoteFileName = fullPath.substring(directory.length + 1);
 
         await uploadFile({ localFilePath, remoteFileName });
 
         const url = await getPublicUrl(remoteFileName)
 
-        return <OutputAsset>{ name: file, url, storedPath: remoteFileName };
+        return <OutputAsset>{ name: remoteFileName, url, storedPath: remoteFileName };
     });
 
     const assets = await Promise.all(uploadPromises);

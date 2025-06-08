@@ -1,4 +1,4 @@
-import { JobEntity, JobEntityId, JobStatus, UnsavedJobEntity } from '../types'
+import { FullJobEntity, JobEntity, JobEntityId, JobStatus, UnsavedJobEntity } from '../types'
 import { OutputAsset, SavedAsset, SavedOutputAsset } from '../types/asset';
 import getClient from "./db"
 
@@ -39,8 +39,11 @@ export async function getJobWithAssets(id: JobEntityId): Promise<JobEntity | nul
     if (jobRes.rows.length === 0) return null;
 
     const job = jobRes.rows[0];
-    const assets: OutputAsset[] = (await client.query(
-        "SELECT name, url, stored_path as storedPath FROM assets WHERE job_id = $1 AND type = 'output' AND deleted_at IS NULL",
+    const assets: SavedOutputAsset[] = (await client.query(
+        `SELECT a.name, a.url, a.stored_path as "storedPath", COALESCE(am.size_bytes, 0) as size
+         FROM assets a
+         LEFT JOIN asset_metadata am ON a.id = am.asset_id
+         WHERE a.job_id = $1 AND a.type = 'output' AND a.deleted_at IS NULL`,
         [id]
     )).rows;
     const metadata = (await client.query('SELECT * FROM job_metadata WHERE job_id = $1', [id])).rows;
@@ -59,11 +62,29 @@ export async function getJobWithAssets(id: JobEntityId): Promise<JobEntity | nul
     };
 }
 
-function assetsToOutputs(assets: OutputAsset[]): Record<string, string> {
+function assetsToOutputs(assets: SavedOutputAsset[]): Record<string, string> {
     return assets.reduce((outputs, asset) => {
         outputs[asset.name] = asset.url
         return outputs
     }, {})
+}
+
+export async function getFullJobWithAssets(id: JobEntityId): Promise<FullJobEntity | null> {
+    const job = await getJobWithAssets(id);
+    if (!job) return null;
+
+    const assets: SavedOutputAsset[] = (await getClient().query(
+        `SELECT a.id, a.name, a.url, a.stored_path as "storedPath", COALESCE(am.size_bytes, 0) as size
+         FROM assets a
+         LEFT JOIN asset_metadata am ON a.id = am.asset_id
+         WHERE a.job_id = $1 AND a.type = 'output' AND a.deleted_at IS NULL`,
+        [id]
+    )).rows;
+
+    return {
+        ...job,
+        assets
+    };
 }
 
 export async function getAllJobs(): Promise<JobEntity[]> {

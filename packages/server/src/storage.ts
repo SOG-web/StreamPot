@@ -108,6 +108,8 @@ class LocalStorage implements StorageDriver {
 
     async uploadFile(localFilePath: string, remoteFileName: string) {
         const destination = path.join(this.storagePath, remoteFileName);
+        const dirname = path.dirname(destination);
+        await fsp.mkdir(dirname, { recursive: true });
         return fsp.copyFile(localFilePath, destination);
     }
 
