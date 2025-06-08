@@ -1,5 +1,3 @@
-import { Static, Type } from "@sinclair/typebox"
-
 interface BaseAsset {
     url: string
 }
@@ -30,15 +28,3 @@ export interface SavedOutputAsset extends OutputAsset {
 }
 
 export type SavedAsset = SavedInputAsset | SavedOutputAsset
-
-export const SavedAssetSchema = Type.Object({
-    id: Type.Number(),
-    job_id: Type.Number(),
-    deleted_at: Type.Union([Type.String(), Type.Null()]),
-    created_at: Type.String(),
-    url: Type.String(),
-    type: Type.String(),
-    name: Type.Optional(Type.String()),
-    stored_path: Type.Optional(Type.String()),
-    size: Type.Optional(Type.Number())
-})

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { PutObjectCommand, S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { DeleteObjectsCommand } from '@aws-sdk/client-s3';
 import { JobEntityId, SavedOutputAsset } from './types';
 import { DeletionError, NoOutputsError } from './errors';
@@ -43,7 +43,16 @@ class S3Storage implements StorageDriver {
     }
 
     async getPublicUrl(key: string) {
-        return `https://${process.env.S3_PUBLIC_DOMAIN}/${key}`;
+        const endpoint = process.env.S3_ENDPOINT || '';
+        const protocol = endpoint.startsWith('http://') ? 'http' : 'https';
+        const publicDomain = process.env.S3_PUBLIC_DOMAIN;
+        const bucket = process.env.S3_BUCKET_NAME;
+
+        if (!publicDomain || !bucket) {
+            throw new Error("S3_PUBLIC_DOMAIN and S3_BUCKET_NAME must be set for S3 storage.")
+        }
+
+        return `${protocol}://${publicDomain}/${bucket}/${key}`;
     }
 
     async deleteFilesByJobId(id: JobEntityId): Promise<SavedOutputAsset[]> {

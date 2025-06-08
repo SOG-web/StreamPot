@@ -19,7 +19,7 @@ import {
     DeletionError,
     NoOutputsError
 } from './errors'
-import { addJob, getAllJobs, getJobWithAssets, getFullJobWithAssets } from './db'
+import { addJob, getAllJobs, getJobWithAssets } from './db'
 import { validateBearerToken } from './auth'
 import { shouldUseAPIKey } from './config'
 import { deleteFilesByJobId } from './storage'
@@ -66,21 +66,7 @@ app.post<{ Body: FfmpegActionsRequestType }>('/', {
     }
 })
 
-app.get<{
-    Params: { id: JobEntityId },
-    Querystring: { include?: string }
-}>('/jobs/:id', async (request, reply) => {
-    if (request.query.include === 'assets') {
-        const job = await getFullJobWithAssets(request.params.id)
-
-        if (!job) {
-            reply.code(404)
-            return { message: 'Job not found' }
-        }
-
-        return job
-    }
-
+app.get<{ Params: { id: JobEntityId } }>('/jobs/:id', async (request, reply) => {
     const job = await getJobWithAssets(request.params.id)
 
     if (!job) {
