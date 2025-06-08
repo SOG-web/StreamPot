@@ -43,8 +43,13 @@ export default class StreamPot {
         }
     }
 
-    public async getJob(jobId: number): Promise<JobEntity> {
-        const response = await fetch(`${this.baseUrl}/jobs/${jobId}`, {
+    public async getJob(jobId: number, options?: { includeAssets?: boolean }): Promise<JobEntity> {
+        let url = `${this.baseUrl}/jobs/${jobId}`;
+        if (options?.includeAssets) {
+            url += '?include=assets';
+        }
+
+        const response = await fetch(url, {
             headers: {
                 "Accept": "application/json",
                 Authorization: `Bearer ${this.secret}`
